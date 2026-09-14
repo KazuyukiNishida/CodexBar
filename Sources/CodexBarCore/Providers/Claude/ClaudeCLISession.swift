@@ -420,11 +420,24 @@ actor ClaudeCLISession {
         self.startedAt = Date()
     }
 
+    /// Inline settings override passed to every probe launch. Claude Code enables Remote Control at startup for
+    /// interactive sessions when the user has turned that on, which registers the probe as an empty
+    /// "remote-control-auto" session in claude.ai/code and the mobile app before it is terminated. The probe never
+    /// needs Remote Control, so opt out explicitly instead of relying on the user's global preference.
+    static let probeSettingsOverride = #"{"remoteControlAtStartup":false}"#
+
     static func launchArguments(sessionID: UUID) -> [String] {
         // `/usage` is interactive, while Claude's no-persistence option is print-only. Reusing one explicit ID keeps
         // repeated probe launches from registering a fresh empty account session every time. The probe never uses MCP
         // tools, so ignore ambient MCP configuration rather than waiting for unrelated user servers to initialize.
-        ["--allowed-tools", "", "--strict-mcp-config", "--session-id", sessionID.uuidString.lowercased()]
+        // Remote Control is disabled for the same reason: a probe that lives for a second must not leave a
+        // disconnected remote session behind.
+        [
+            "--allowed-tools", "",
+            "--strict-mcp-config",
+            "--settings", self.probeSettingsOverride,
+            "--session-id", sessionID.uuidString.lowercased(),
+        ]
     }
 
     static func loadOrCreateProbeSessionID(

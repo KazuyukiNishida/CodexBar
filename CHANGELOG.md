@@ -2,6 +2,9 @@
 
 ## 0.60.3 — Unreleased
 
+### Fixed
+- Claude: launch the CLI usage probe with Remote Control disabled (`--settings '{"remoteControlAtStartup":false}'`), so short-lived probes no longer leave empty "remote-control-auto" sessions in claude.ai/code and the mobile app when the user has Remote Control enabled by default (related to #1301).
+
 ## 0.60.2 — 2026-09-14
 
 ### Highlights
